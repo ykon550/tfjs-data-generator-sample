@@ -2,7 +2,7 @@
 Sample code for tf.data.generator and fitDataset() of tensorflow.js
 
 # Who needs this?
-This is for someone who has large training dataset and it doesn't fit entirely in mememory.
+This is for someone who has large training dataset and that dataset doesn't fit entirely in memory.
 
 # How to Use
 Needs 3steps to see how it works
