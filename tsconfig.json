@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "module": "commonjs",
+        "allowJs": true,
+        "target": "es6",
+        "lib": ["dom", "es7"],
+        "resolveJsonModule": true,
+        "sourceMap": true
+    },
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+    ]
+}
