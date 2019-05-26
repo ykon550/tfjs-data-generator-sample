@@ -3,28 +3,27 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { hiddenCalc } from './create-datafiles'
 
-function* dataGenerator() {
+function* inputs() {
     const fileList = fs.readdirSync(__dirname + "/../data/").filter((file) => {
         return path.extname(file) == '.json'
     })
-    let xs = []
-    let ys = []
-    while (true) {
-        for (let idx = 0; idx < fileList.length; idx++) {
-            const dest = __dirname + "/../data/" + fileList[idx]
-            let data = fs.readFileSync(dest, { encoding: 'utf-8' })
-            const jsonData = JSON.parse(data)
-            xs.push(jsonData.x)
-            ys.push(jsonData.y)
-            if (xs.length == 2) {
-                const tx = tf.tensor2d(xs)
-                const ty = tf.tensor2d(ys)
-                const ret = { xs: tx, ys: ty }
-                xs = []
-                ys = []
-                yield ret;
-            }
-        }
+    for (let idx = 0; idx < fileList.length; idx++) {
+        const dest = __dirname + "/../data/" + fileList[idx]
+        let data = fs.readFileSync(dest, { encoding: 'utf-8' })
+        const json = JSON.parse(data)
+        yield json.x
+    }
+}
+
+function* labels() {
+    const fileList = fs.readdirSync(__dirname + "/../data/").filter((file) => {
+        return path.extname(file) == '.json'
+    })
+    for (let idx = 0; idx < fileList.length; idx++) {
+        const dest = __dirname + "/../data/" + fileList[idx]
+        let data = fs.readFileSync(dest, { encoding: 'utf-8' })
+        const json = JSON.parse(data)
+        yield json.y
     }
 }
 
@@ -47,11 +46,15 @@ function buildModel() {
 }
 
 async function train(model) {
-    const ds = tf.data.generator(dataGenerator)
+    // const ds = tf.data.generator(multiGenerator)
+
+    const xs = tf.data.generator(inputs)
+    const ys = tf.data.generator(labels)
+    const ds = tf.data.zip({xs, ys}).shuffle(100).batch(32)
+
     await model.fitDataset(ds, {
         verbose: 1,
         epochs: 1000,
-        batchesPerEpoch: 9,
         callbacks: {
             onEpochEnd: async (epoch: any, log: any) => {
                 console.log(`Epoch ${epoch}, ${JSON.stringify(log)}`);
@@ -75,3 +78,28 @@ async function main() {
 }
 
 main()
+
+function* multiGenerator() {
+    const fileList = fs.readdirSync(__dirname + "/../data/").filter((file) => {
+        return path.extname(file) == '.json'
+    })
+    let xs = []
+    let ys = []
+    while (true) {
+        for (let idx = 0; idx < fileList.length; idx++) {
+            const dest = __dirname + "/../data/" + fileList[idx]
+            let data = fs.readFileSync(dest, { encoding: 'utf-8' })
+            const jsonData = JSON.parse(data)
+            xs.push(jsonData.x)
+            ys.push(jsonData.y)
+            if (xs.length == 2) {
+                const tx = tf.tensor2d(xs)
+                const ty = tf.tensor2d(ys)
+                const ret = { xs: tx, ys: ty }
+                xs = []
+                ys = []
+                yield ret;
+            }
+        }
+    }
+}
