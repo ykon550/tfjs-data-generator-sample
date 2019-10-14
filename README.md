@@ -15,6 +15,6 @@ $ node dist/index.js
 2. create test dataset files
 3. build model and learn with `tf.data.generator` and `fitDataSet()`
 
-# Sample problem for TensorFlow
+# Sample exercise for TensorFlow
 Regression model to predict 1 value given 4 arguments value.  
 This value is caluculated by simple function, named `hiddenCalc()`
